@@ -1,2 +1,4 @@
-hello/*.img
+helloos/*.img
+helloos/*.bin
+helloos/*.lst
 z_tools/qemu/fdimage0.bin

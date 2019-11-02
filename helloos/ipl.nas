@@ -7,7 +7,7 @@
 
 	JMP 	entry
 	DB 		0x90
-	DB 		"HENLLOIPL"		; name of boot sector(8 bytes)
+	DB 		"HELLOIPL"		; name of boot sector(8 bytes)
 	DW 		512				; size of a sector(must be 512 bytes)
 	DB		1				; size of a cluster(must 1 sector)
 	DW		1				; initial sector of FAT
@@ -43,7 +43,7 @@ putloop:
 		CMP		AL,0
 		JE		fin
 		MOV		AH,0x0e
-		MOV 	BX,15		; set color
+		MOV 	BX,15		; set color to red
 		INT		0x10		; call vedio bios
 		JMP		putloop
 
@@ -53,17 +53,10 @@ fin:
 
 msg:
 		DB		0x0a,0x0a	; two new lines
-		DB		"hello, world"
+		DB		"Hello, world"
 		DB		0x0a		; new line
 		DB		0
 
 		RESB	0x7dfe-$	; write 0x00 till 0x7dfe
 
 		DB		0x55,0xaa
-
-; outside boot sector
-
-		DB		0xf0,0xff,0xff,0x00,0x00,0x00,0x00,0x00
-		RESB	4600
-		DB		0xf0,0xff,0xff,0x00,0x00,0x00,0x00,0x00
-		RESB	1469432
