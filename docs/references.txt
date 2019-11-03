@@ -1,0 +1,2 @@
+BIOS：
+https://wiki.osdev.org/BIOS
