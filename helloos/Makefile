@@ -1,35 +1,44 @@
 # variables
-z_tool_dir=../z_tools
-z_tool_dir_win=..\z_tools
+TOOLPATH=../z_tools
+MAKE=$(TOOLPATH)/make.exe -r
+NASK=$(TOOLPATH)/nask.exe
+EDIMG=$(TOOLPATH)/edimg.exe
+IMGTOL=$(TOOLPATH)/imgtol.exe
+COPY=copy
+DEL=del
 
 default:
-	$(z_tool_dir)/make.exe img
+	$(MAKE) img
 
 # rule of files
 ipl.bin: ipl.nas Makefile
-	$(z_tool_dir)/nask.exe ipl.nas ipl.bin ipl.lst
+	$(NASK) ipl.nas ipl.bin ipl.lst
 
-helloos.img: ipl.bin Makefile
-	$(z_tool_dir)/edimg.exe imgin:$(z_tool_dir)/fdimg0at.tek \
-		wbinimg src:ipl.bin len:512 from:0 to:0 imgout:helloos.img
+turing.sys: turing.nas Makefile
+	$(NASK)	turing.nas turing.sys turing.lst
+
+turing.img: ipl.bin turing.sys Makefile
+	$(EDIMG) imgin:$(TOOLPATH)/fdimg0at.tek \
+		wbinimg src:ipl.bin len:512 from:0 to:0 \
+		copy from:turing.sys to:@: \
+		imgout:turing.img
 
 # commands
-asm:
-	$(z_tool_dir)/make.exe -r ipl.bin
-
 img:
-	$(z_tool_dir)/make.exe -r helloos.img
+	$(MAKE) turing.img
 
 run:
-	$(z_tool_dir)/make.exe img
-	copy helloos.img $(z_tool_dir_win)\qemu\fdimage0.bin
-	$(z_tool_dir)/make.exe -C $(z_tool_dir)/qemu
+	$(MAKE) img
+	$(COPY)	turing.img	..\z_tools\qemu\fdimage0.bin
+	$(MAKE) -C ../z_tools/qemu
 
 install:
-	$(z_tool_dir)/make.exe img
-	$(z_tool_dir)/imgtol.com w a: helloos.img
+	$(MAKE) img
+	$(IMGTOL) w a: turing.img
 
 clean:
 	-del ipl.bin
 	-del ipl.lst
+	-del turing.sys
+	-del turing.lst
 	-del helloos.img

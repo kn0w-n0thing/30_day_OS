@@ -76,10 +76,10 @@ next:
 		ADD		CH,1
 		CMP		CH,CYLS
 		JB		readloop
-fin:
-		HLT					; halt cpu and wait for instruction
-		JMP		fin
 
+; Jump to turing.sys
+		MOV		[0x0ff0],CH	; restore the number of cylinders IPL read
+		JMP		0xc200
 error:
 		MOV		SI,msg
 
@@ -93,6 +93,10 @@ putloop:
 		MOV 	BX,15		; set color to red
 		INT		0x10		; call vedio bios
 		JMP		putloop
+
+fin:
+		HLT
+		JMP 	fin
 
 msg:
 		DB		0x0a,0x0a	; two new lines
