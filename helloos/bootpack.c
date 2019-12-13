@@ -1,8 +1,10 @@
-void HariMain()
-{
+/* A funtion declared in other file */
+void io_hlt(void);
+
+void HariMain() {
 
 fin:
-	/* indefinite loop */
-	/* there's no hlt in C */
+	/* _io_hlt in naskfunc.nas */
+	io_hlt();
 	goto fin;
 }
