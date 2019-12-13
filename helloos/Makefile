@@ -1,7 +1,14 @@
 # variables
 TOOLPATH=../z_tools
+INCPATH=../z_tools/haribote
+
 MAKE=$(TOOLPATH)/make.exe -r
 NASK=$(TOOLPATH)/nask.exe
+CC1=$(TOOLPATH)/cc1.exe -I$(INCPATH) -Os -Wall
+GAS2NASK=$(TOOLPATH)/gas2nask.exe -a
+OBJ2BIM=$(TOOLPATH)/obj2bim.exe
+BIM2HRB=$(TOOLPATH)/bim2hrb.exe
+RULEFILE=$(TOOLPATH)/haribote/haribote.rul
 EDIMG=$(TOOLPATH)/edimg.exe
 IMGTOL=$(TOOLPATH)/imgtol.exe
 COPY=copy
@@ -14,31 +21,56 @@ default:
 ipl.bin: ipl.nas Makefile
 	$(NASK) ipl.nas ipl.bin ipl.lst
 
-turing.sys: turing.nas Makefile
-	$(NASK)	turing.nas turing.sys turing.lst
+asmhead.bin: asmhead.nas Makefile
+	$(NASK) asmhead.nas asmhead.bin asmhead.lst
 
-turing.img: ipl.bin turing.sys Makefile
+bootpack.gas: bootpack.c Makefile
+	$(CC1) -o bootpack.gas bootpack.c
+
+bootpack.nas: bootpack.gas Makefile
+	$(GAS2NASK) bootpack.gas bootpack.nas
+
+bootpack.obj: bootpack.nas Makefile
+	$(NASK) bootpack.nas bootpack.obj bootpack.lst
+
+bootpack.bim: bootpack.obj Makefile
+	$(OBJ2BIM) @$(RULEFILE) out:bootpack.bim stack:3136k map:bootpack.map \
+		bootpack.obj
+# 3MB + 64KB = 3136KB
+
+bootpack.hrb: bootpack.bim Makefile
+	$(BIM2HRB) bootpack.bim bootpack.hrb 0
+
+haribote.sys: asmhead.bin bootpack.hrb Makefile
+	$(COPY) /B asmhead.bin+bootpack.hrb haribote.sys
+
+haribote.img: ipl.bin haribote.sys Makefile
 	$(EDIMG) imgin:$(TOOLPATH)/fdimg0at.tek \
 		wbinimg src:ipl.bin len:512 from:0 to:0 \
-		copy from:turing.sys to:@: \
-		imgout:turing.img
+		copy from:haribote.sys to:@: \
+		imgout:haribote.img
 
 # commands
 img:
-	$(MAKE) turing.img
+	$(MAKE) haribote.img
 
 run:
 	$(MAKE) img
-	$(COPY)	turing.img	..\z_tools\qemu\fdimage0.bin
+	$(COPY)	haribote.img	..\z_tools\qemu\fdimage0.bin
 	$(MAKE) -C ../z_tools/qemu
 
 install:
 	$(MAKE) img
-	$(IMGTOL) w a: turing.img
+	$(IMGTOL) w a: haribote.img
 
 clean:
-	-del ipl.bin
-	-del ipl.lst
-	-del turing.sys
-	-del turing.lst
-	-del helloos.img
+	-$(DEL) *.bin
+	-$(DEL) *.lst
+	-$(DEL) *.gas
+	-$(DEL) *.obj
+	-$(DEL) bootpack.nas
+	-$(DEL) bootpack.map
+	-$(DEL) bootpack.bim
+	-$(DEL) bootpack.hrb
+	-$(DEL) bootpack.sys
+	-$(DEL) haribote.img
