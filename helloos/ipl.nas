@@ -1,11 +1,11 @@
 ; hello-os
-; TAb=4
+; TAB=4
 
 CYLS	EQU		10
+
 		ORG		0x7c00
 
 ; standard FAT12 floppy disk format
-
 		JMP 	entry
 		DB 		0x90
 		DB 		"TURINGOS"		; name of boot sector(8 bytes)
@@ -36,8 +36,7 @@ entry:
 		MOV		DS,AX
 ; read disk
 		MOV		AX,0x0820
-		MOV		ES,AX		; set ES to 0x0820
-							; address after 0x7e00 is free to use
+		MOV		ES,AX		; set ES to 0x0820, address after 0x7e00 is free to use
 		MOV		CH,0		; cylinder 0
 		MOV		DH,0		; head 0
 		MOV		CL,2		; sector 2
@@ -65,8 +64,7 @@ next:
 		ADD		AX,0x0020
 		MOV		ES,AX		; add 0x0200 to ES, namely 512 bytes
 		ADD		CL,1
-		CMP		CL,18
-		; Jump short if below or equal (CF=1 or ZF=1)
+		CMP		CL,18 		; Jump short if below or equal (CF=1 or ZF=1)
 		JBE		readloop
 		MOV		CL,1
 		ADD		DH,1

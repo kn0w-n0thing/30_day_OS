@@ -1,9 +1,10 @@
 ; haribote-os boot asm
-; TAb=4
+; TAB=4
 
 BOTPAK	EQU		0x00280000		; bootpack load address
 DSKCAC	EQU		0x00100000		; disk cache address
 DSKCAC0	EQU		0x00008000		; disk cache address(real mode)
+
 ; BOOT_INFO
 CYLS	EQU		0x0ff0
 LEDS	EQU		0x0ff1
@@ -30,6 +31,9 @@ VRAM	EQU		0x0ff8			; start of graphic buffer
 
 ; Prohibit interrupts
 
+
+
+
 		MOV 	AL,0xff
 		OUT 	0x21,AL
 		NOP
@@ -49,7 +53,7 @@ VRAM	EQU		0x0ff8			; start of graphic buffer
 
 ; Enable protect mode
 
-[instrset "i486p"]			; Use 486 command
+[INSTRSET "i486p"]			; Use 486 command
 
 		LGDT	[GDTR0]			; Set tmporary GDT
 		MOV		EAX,CR0
@@ -86,9 +90,9 @@ pipelineflush:
 		MOV		ESI,DSKCAC0+512	; Source
 		MOV		EDI,DSKCAC+512	; Desitny
 		MOV		ECX,0
-		MOV		CL,BYTE[CYLS]
+		MOV		CL,BYTE [CYLS]
 		IMUL	ECX,512*18*2/4	; Transform number of cylinder to byte/4
-		SUB		ECX,512
+		SUB		ECX,512/4
 		CALL	memcpy
 
 ; End asmhead
@@ -97,7 +101,7 @@ pipelineflush:
 		MOV		EBX,BOTPAK
 		MOV		ECX,[EBX+16]
 		ADD		ECX,3
-		SHR		ECX,4
+		SHR		ECX,2
 		JZ		skip
 		MOV		ESI,[EBX+20]
 		ADD		ESI,EBX
@@ -111,6 +115,7 @@ waitkbdout:
 		IN		AL,0x64
 		AND		AL,0x02
 		JNZ		waitkbdout
+		RET
 
 memcpy:
 		MOV		EAX,[ESI]
