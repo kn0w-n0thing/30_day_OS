@@ -7,8 +7,9 @@ void write_mem8(int addr, int data);
 
 void HariMain() {
 	int i;
-	for (i = 0xa0000; i <= 0xaffff; i++) {
-		write_mem8(i, 15); /* MOV BYTE [i],15 */
+	char *p = (char*) VRAM_START_ADDR;
+	for (i = 0; i <= VRAM_LENGTH; i++) {
+		p[i] = i & 0x0f; /* MOV BYTE [i],15 */
 	}
 
 	/* _io_hlt in naskfunc.nas */
