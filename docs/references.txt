@@ -1,2 +1,5 @@
 BIOS：
 https://wiki.osdev.org/BIOS
+
+day 4 VGA:
+https://wiki.osdev.org/VGA_Hardware#Port_0x3C8
